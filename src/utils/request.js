@@ -15,17 +15,47 @@ function checkStatus(response) {
 }
 
 export function get(url, payload) {
-  for (let key in payload) {
-    url = url + key + "=" + payload[key] + "&";
+  const urlparams = new URLSearchParams();
+  for (const key in payload) {
+    if (Object.prototype.hasOwnProperty.call(payload, key)) {
+      if (payload[key] !== null) {
+        urlparams.append(key, payload[key]);
+      }
+    }
   }
-  console.log(url);
+  let urlparamsstr = urlparams.toString();
+  if (urlparamsstr != null && urlparamsstr!== '') {
+    url = url + `?${urlparamsstr}`
+  }
+
   const options = {
     method : "GET",
     headers : {
-      "Content-Type" : "application/x-www-form-urlencoded; charset=UTF-8"
+      "Content-Type" : "application/json"
     }
   }
-  return request(url, options);
+  return fetch(url, options)
+    .then(checkStatus)
+    .then(parseJSON)
+    .then(data => ({ data }))
+    .catch(err => ({ err }));
+}
+
+export function request(method, url, payload) {
+  const options = {
+    method : method,
+    headers : {
+      "Content-Type" : "application/json"
+    }
+  };
+  if (payload) {
+    options.body = JSON.stringify(payload);
+  }
+  return fetch(url, options)
+  .then(checkStatus)
+    .then(parseJSON)
+    .then(data => ({ data }))
+    .catch(err => ({ err }));
 }
 
 /**
@@ -35,10 +65,10 @@ export function get(url, payload) {
  * @param  {object} [options] The options we want to pass to "fetch"
  * @return {object}           An object containing either "data" or "err"
  */
-export default function request(url, options) {
-  return fetch(url, options)
-    .then(checkStatus)
-    .then(parseJSON)
-    .then(data => ({ data }))
-    .catch(err => ({ err }));
-}
+// export default function request(url, options) {
+//   return fetch(url, options)
+//     .then(checkStatus)
+//     .then(parseJSON)
+//     .then(data => ({ data }))
+//     .catch(err => ({ err }));
+// }

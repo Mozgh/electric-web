@@ -1,14 +1,15 @@
-import {listUsers} from '../services/example';
+import {listUsers, createUser, deleteUser} from '../services/example';
 
 export default {
 
     namespace : 'user',
   
     state : {
-        datas : [
-            {id : 1, username : "admin", email : "admin.test@test.com"},
-            {id : 2, username : "user1"}
-        ]
+        users : [],
+        pageNum : 1,
+        pageSize : 10,
+        total : 0,
+        createVisible : false
     },
   
     subscriptions : {
@@ -17,20 +18,31 @@ export default {
     },
   
     effects : {
-      *fetch({ payload }, { call, put }) {  // eslint-disable-line
-        yield put({ type : 'save' });
+      *createUser({payload}, {call, put}) {
+        yield call(createUser, payload);
       },
 
       *listUsers({payload}, {call, put}) {
           let response = yield call(listUsers, payload);
+          yield put({
+            type : 'setUser',
+            payload : {
+              datas : response.data.res
+            }
+          })
+      },
+      *deleteUser({payload}, {call, put}) {
+        yield call(deleteUser, payload);
       }
     },
   
     reducers : {
-      save(action) {
-        console.log(action);
-        return { ...action.payload };
+      setUser(state, {payload : {datas, pageNum, pageSize, total}}) {
+        return {...state, users : datas, pageNum : pageNum, pageSize : pageSize, total : total};
       },
+      setCreateVisible(state, {payload : {visible}}) {
+        return {...state, createVisible : visible}
+      }
     },
   
   };

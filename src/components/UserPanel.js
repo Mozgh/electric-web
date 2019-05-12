@@ -1,6 +1,7 @@
-import {Table, Button } from 'antd';
+import {Table, Button, Icon } from 'antd';
 import { connect } from 'dva';
 import Layout from './Layout';
+import UserForm from './UserForm';
 
 const UserPanel = ({ dispatch, user }) => {
 
@@ -24,6 +25,21 @@ const UserPanel = ({ dispatch, user }) => {
             title : '手机号',
             dataIndex : "phone",
             key : "phone"
+        },
+        {
+            title : "操作",
+            dataIndex : "operation",
+            key : "operation",
+            render : (text, record) => {
+                return (<div>
+                    <Button>
+                        <Icon type="edit" />
+                    </Button>
+                    <Button type="danger" onClick={() => deleteUser(record.id)} >
+                        <Icon type="delete" />
+                    </Button>
+                </div>)
+            }
         }
     ]
 
@@ -34,22 +50,34 @@ const UserPanel = ({ dispatch, user }) => {
         })
     }
 
-    const save = () => {
+    const showCreateDrawer = () => {
         dispatch({
-            type : "user/save",
-            payload : "hello"
+            type : "user/setCreateVisible",
+            payload : {visible : true}
         })
     }
 
+    const deleteUser = (id) => {
+        console.log(id);
+        dispatch({
+            type : "user/deleteUser",
+            payload : {id : id}
+        }).then(err => {
+                if (!err) {
+                    listUser();
+                }
+            })
+        
+    }
+
     const renderTable = () => {
-        return <Table columns={columns} dataSource={user.datas}/>
+        return <Table columns={columns} dataSource={user.users} rowKey={'id'}/>
     }
 
     const renderButtons = () => {
         return (<div>
-            <Button onClick={listUser}>refresh</Button>
-            <Button onClick={save}>create</Button>
-            <Button>delete</Button>
+            <Button onClick={listUser}><Icon type="reload" />刷新</Button>
+            <Button onClick={showCreateDrawer}><Icon type="user-add" />新建</Button>
         </div>)
     }
 
@@ -57,6 +85,7 @@ const UserPanel = ({ dispatch, user }) => {
         return <div>
             {renderButtons()}
             {renderTable()}
+            <UserForm />
         </div>
     }
 

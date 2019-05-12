@@ -1,9 +1,18 @@
+import {listFactory} from '../services/example';
 
 export default {
 
-  namespace : 'example',
+  namespace : 'data',
 
-  state : {},
+  state : {
+    factory : [],
+    currentFactory : {},
+    workshop : [],
+    currentWorkshop : {},
+    circuit : [],
+    currentCircuit : {},
+    electricData : {}
+  },
 
   subscriptions : {
     setup({ dispatch, history }) {  // eslint-disable-line
@@ -14,6 +23,10 @@ export default {
     *fetch({ payload }, { call, put }) {  // eslint-disable-line
       yield put({ type : 'save' });
     },
+
+    *listFactory({payload}, {call, put}) {
+      yield call(listFactory, payload)
+    }
   },
 
   reducers : {
