@@ -7,6 +7,14 @@ import {
     
 const DataGraph = () => {
 
+    const electricData = [
+      {
+        time : "2018-07-31 00:00:00",
+        electricityA : 293,
+        voltageA : 10140
+      }
+    ]
+
     const data = [
         {
           year : "1991",

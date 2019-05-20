@@ -19,3 +19,15 @@ export function deleteUser(payload) {
 export function listFactory(payload) {
   return get('/api/factory');
 }
+
+export function listWorkshop(payload) {
+  return get(`/api/factory/${payload.id}/workshop`);
+}
+
+export function listCircuit(payload) {
+  return get(`/api/workshop/${payload.id}/circuit`)
+}
+
+export function listData(payload) {
+  return get(`/api/circuit/${payload.id}/data`)
+}
