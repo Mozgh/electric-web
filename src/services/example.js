@@ -29,5 +29,5 @@ export function listCircuit(payload) {
 }
 
 export function listData(payload) {
-  return get(`/api/circuit/${payload.id}/data`)
+  return get(`/api/circuit/${payload.cid}/data/A`, payload)
 }

@@ -2,14 +2,11 @@ import Layout from "./Layout";
 import DataGraph from './DataGraph';
 import { Select, Tree, Icon, Button, Row, Col } from "antd";
 import {connect} from 'dva';
+import moment from 'moment';
 
 const {TreeNode} = Tree;
 
 const Data = ({dispatch, data}) => {
-
-    const renderSelect = () => {
-        return (<Select />)
-    }
 
     const reload = () => {
         dispatch({
@@ -17,21 +14,33 @@ const Data = ({dispatch, data}) => {
         });
     }
 
-    const loadElectricData = (circuitId) => {
+    const loadElectricData = (selectedKeys, {selectedNodes}) => {
+        console.log(selectedNodes);
+        const node = selectedNodes[0];
+        const {props} = node;
+        const {dataRef} = props;
+        const {id} = dataRef;
+        
         dispatch({
             type : 'data/listData',
-            payload : circuitId
+            payload : {
+                cid : id,
+                start : "2018-07-31 16:00:00",
+                end : "2018-07-31 20:00:00",
+                phase : "A"
+            }
         })
     }
 
     const buildFactoryNode = () => {
         const {factory} = data;
         let treeNode = [];
-        if (factory == null || factory == undefined) {
+        if (factory) {
             factory.map(f => {
                 const {workshops} = f;
+                console.log(f);
                 treeNode.push(
-                    <TreeNode title={f.name} key={f.id}>
+                    <TreeNode title={f.name} key={f.id} selectable={false}>
                         {
                             buildWorkshopNode(workshops)
                         }
@@ -39,6 +48,7 @@ const Data = ({dispatch, data}) => {
                 )
             })
         }
+        console.log(treeNode);
         return treeNode;
     }
 
@@ -47,7 +57,7 @@ const Data = ({dispatch, data}) => {
         if (workshops) {
             workshops.map(w => {
                 workshopNodes.push(
-                    <TreeNode title={w.name} key={w.id + w.name}>
+                    <TreeNode title={w.name} key={w.id + w.name} selectable={false}>
                         {buildCircuitNode(w.circuits)}
                     </TreeNode>
                 )
@@ -64,7 +74,7 @@ const Data = ({dispatch, data}) => {
         if (circuits) {
             circuits.map(c => {
                 circuitNodes.push(
-                    <TreeNode title={c.name} key={c.id + c.name}></TreeNode>
+                    <TreeNode title={c.name} key={c.id + '_' + c.name} selectable={true} dataRef={c}></TreeNode>
                 )
             })
         }
@@ -77,7 +87,7 @@ const Data = ({dispatch, data}) => {
             <div>
                 <Button onClick={reload}><Icon type="reload" /></Button>
             </div>
-                <Tree>
+                <Tree onSelect={loadElectricData}>
                     {buildFactoryNode()}
                 </Tree>
         </div>
