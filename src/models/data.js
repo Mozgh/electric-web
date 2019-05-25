@@ -11,7 +11,10 @@ export default {
     currentWorkshop : {},
     circuit : [],
     currentCircuit : {},
-    electricData : {}
+    electricData : {}, 
+    dataA : [],
+    dataB : [],
+    dataC : []
   },
 
   subscriptions : {
@@ -39,10 +42,39 @@ export default {
 
     *listData({payload}, {call, put}) { 
       const { data } = yield call(listData, payload);
+      
+      const {res} = data;
+      let dataA = [];
+      let dataB = [];
+      let dataC = [];
+      if (res) {
+        res.map(record => {
+          const {electricityA, voltageA, electricityB, voltageB, electricityC, voltageC, time} = record;
+          dataA.push({
+            electricity : electricityA,
+            voltage : voltageA,
+            time
+          });
+          dataB.push({
+            electricity : electricityB,
+            voltage : voltageB,
+            time
+          });
+          dataC.push({
+            electricity : electricityC,
+            voltage : voltageC,
+            time
+          });
+      })
+      }
+
       yield put({
         type : 'setElectricData',
-        payload : data.res
-      })
+        payload : {
+          dataA, dataB, dataC
+        }
+      }) 
+
     }
   },
 
@@ -69,7 +101,8 @@ export default {
       return { ...state, currentCircuit : payload.currentCircuit};
     },
     setElectricData(state, payload) {
-      return { ...state, electricData : payload.payload};
+      const {dataA, dataB, dataC} = payload.payload;
+      return { ...state, dataA, dataB, dataC};
     }
   },
 

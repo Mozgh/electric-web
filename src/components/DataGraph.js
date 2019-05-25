@@ -1,90 +1,124 @@
+import {Row, Col} from 'antd';
+import {
+  Chart,
+  Geom,
+  Axis,
+  Tooltip,
+  Legend
+} from "bizcharts";
+import DataSet from "@antv/data-set";
+import moment from 'moment';
+const DataGraph = ({electricData}) => {
 
-import {   
-    Chart,
-    Geom,
-    Axis,
-    Tooltip} from "bizcharts";
-    
-const DataGraph = () => {
-
-    const electricData = [
-      {
-        time : "2018-07-31 00:00:00",
-        electricityA : 293,
-        voltageA : 10140
-      }
-    ]
-
-    const data = [
-        {
-          year : "1991",
-          value : 3
-        },
-        {
-          year : "1992",
-          value : 4
-        },
-        {
-          year : "1993",
-          value : 3.5
-        },
-        {
-          year : "1994",
-          value : 5
-        },
-        {
-          year : "1995",
-          value : 4.9
-        },
-        {
-          year : "1996",
-          value : 6
-        },
-        {
-          year : "1997",
-          value : 7
-        },
-        {
-          year : "1998",
-          value : 9
-        },
-        {
-          year : "1999",
-          value : 13
-        }
-      ];
-      const cols = {
-        value : {
-          min : 0
-        },
-        year : {
-          range : [0, 1]
-        }
-      };
-
-    return ( 
+  const ds = new DataSet();
+  const dv1 = ds.createView().source(electricData);
+  dv1.transform({
+    type : "fold",
+    fields : ["electricity"],
+    // 展开字段集
+    key : "city",
+    // key字段
+    value : "temperature" // value字段
+  });
+  const dv2 = ds.createView().source(electricData);
+  dv2.transform({
+    type : "fold",
+    fields : ["voltage"],
+    // 展开字段集
+    key : "city",
+    // key字段
+    value : "temperature" // value字段
+  });
+  const cols = {
+    month : {
+      range : [0, 1]
+    }
+  };
+  return (
     <div>
-        <Chart height={400} data={data} scale={cols} forceFit>
-          <Axis name="year" />
-          <Axis name="value" />
+      <Row>
+        <Col span={12}>
+          <Chart height={300} data={dv1} scale={cols} forceFit>
+          <Legend />
+          <Axis 
+            name="time"
+            label={{
+              formatter : time => moment(time).format("HH:mm:ss")
+            }}
+          />
+          <Axis
+            name="temperature"
+            label={{
+              formatter : val => `${val}A`
+            }}
+          />
           <Tooltip
             crosshairs={{
               type : "y"
             }}
           />
-          <Geom type="line" position="year*value" size={2} />
+          <Geom
+            type="line"
+            position="time*temperature"
+            size={2}
+            color={"city"}
+          />
           <Geom
             type="point"
-            position="year*value"
+            position="time*temperature"
             size={4}
             shape={"circle"}
+            color={"city"}
             style={{
               stroke : "#fff",
               lineWidth : 1
             }}
           />
-        </Chart>
-    </div>)
+          </Chart>
+        </Col>
+        <Col  span={12}>
+          <Chart height={300} data={dv2} scale={cols} forceFit>
+          <Legend />
+          <Axis 
+            name="time"
+            label={{
+              formatter : time => moment(time).format("HH:mm:ss")
+            }}
+          />
+          <Axis
+            name="temperature"
+            label={{
+              formatter : val => `${val}V`
+            }}
+          />
+          <Tooltip
+            crosshairs={{
+              type : "y"
+            }}
+          />
+          <Geom
+            type="line"
+            position="time*temperature"
+            size={2}
+            color={"city"}
+          />
+          <Geom
+            type="point"
+            position="time*temperature"
+            size={4}
+            shape={"circle"}
+            color={"city"}
+            style={{
+              stroke : "#fff",
+              lineWidth : 1
+            }}
+          />
+          </Chart>
+        </Col>
+      </Row>
+      
+    </div>
+  );
 }
 
 export default DataGraph;
