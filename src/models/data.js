@@ -1,4 +1,4 @@
-import {listFactory, listWorkshop, listCircuit, listData} from '../services/example';
+import {listFactory, listWorkshop, listCircuit, listData, createFactory, createWorkshop, createCircuit, downloadTemplate} from '../services/example';
 
 export default {
 
@@ -14,7 +14,10 @@ export default {
     electricData : {}, 
     dataA : [],
     dataB : [],
-    dataC : []
+    dataC : [],
+    modalVisible : false,
+    modalType : "",     //factory,workshop,circuit,data
+    modalInfo : {}
   },
 
   subscriptions : {
@@ -34,10 +37,24 @@ export default {
         payload : data.res
       })
     },
+    *createFactory({payload}, {call, put}) {
+      yield call(createFactory, payload);
+    },
 
     *listWorkshop({payload}, {call, put}) {
       const { data } = yield call(listWorkshop, payload);
-      yield put()
+    },
+
+    *createWorkshop({payload}, {call, put}) {
+      yield call(createWorkshop, payload);
+    },
+
+    *createCircuit({payload}, {call, put}) {
+      yield call(createCircuit, payload);
+    },
+
+    *downloadTemplate({payload}, {call, put}) {
+      yield call(downloadTemplate, payload);
     },
 
     *listData({payload}, {call, put}) { 
@@ -103,6 +120,15 @@ export default {
     setElectricData(state, payload) {
       const {dataA, dataB, dataC} = payload.payload;
       return { ...state, dataA, dataB, dataC};
+    },
+    setModalInfo(state, payload) {
+      const {modalVisible, modalType, modalInfo} = payload.payload;
+      return {
+        ...state,
+        modalVisible,
+        modalType,
+        modalInfo
+      }
     }
   },
 

@@ -1,11 +1,12 @@
 import Layout from "./Layout";
 import DataGraph from './DataGraph';
-import { Select, Tree, Icon, Button, Row, Col } from "antd";
-import {connect} from 'dva';
+import { Tree, Icon, Button, Row, Col, Popover } from "antd";
+import { connect } from 'dva';
+import DataForm from './DataForm';
 
-const {TreeNode} = Tree;
+const { TreeNode } = Tree;
 
-const Data = ({dispatch, data}) => {
+const Data = ({ dispatch, data }) => {
 
     const reload = () => {
         dispatch({
@@ -13,7 +14,7 @@ const Data = ({dispatch, data}) => {
         });
     }
 
-    const loadElectricData = (selectedKeys, {selectedNodes}) => {
+    const loadElectricData = (selectedKeys, { selectedNodes }) => {
         const node = selectedNodes[0];
         if (node === null || node === undefined) {
             dispatch({
@@ -26,10 +27,10 @@ const Data = ({dispatch, data}) => {
             });
             return;
         }
-        const {props} = node;
-        const {dataRef} = props;
-        const {id} = dataRef;
-        
+        const { props } = node;
+        const { dataRef } = props;
+        const { id } = dataRef;
+
         dispatch({
             type : 'data/listData',
             payload : {
@@ -42,13 +43,30 @@ const Data = ({dispatch, data}) => {
     }
 
     const buildFactoryNode = () => {
-        const {factory} = data;
+        const { factory } = data;
         let treeNode = [];
+
+        const content =(id) => {
+            return (
+                <div>
+                    <Button onClick={() => showModal("workshop", id)}><Icon type="file-add" /></Button>
+                    <Button><Icon type="delete" /></Button>
+                </div>
+            )
+        }
+
+        const options = (name, id) => {
+            return (
+                <Popover content={content(id)} placement="right" trigger="hover">
+                    {name}
+                </Popover>
+            )
+        }
         if (factory) {
             factory.map(f => {
-                const {workshops} = f;
+                const { workshops } = f;
                 treeNode.push(
-                    <TreeNode title={f.name} key={f.id} selectable={false}>
+                    <TreeNode title={options(f.name, f.id)} key={f.id} selectable={false}>
                         {
                             buildWorkshopNode(workshops)
                         }
@@ -61,10 +79,26 @@ const Data = ({dispatch, data}) => {
 
     const buildWorkshopNode = (workshops) => {
         let workshopNodes = [];
+        const content =(id) => {
+            return (
+                <div>
+                    <Button onClick={() => showModal("circuit", id)}><Icon type="file-add" /></Button>
+                    <Button><Icon type="delete" /></Button>
+                </div>
+            )
+        }
+
+        const options = (name, id) => {
+            return (
+                <Popover content={content(id)} placement="right" trigger="hover">
+                    {name}
+                </Popover>
+            )
+        }
         if (workshops) {
             workshops.map(w => {
                 workshopNodes.push(
-                    <TreeNode title={w.name} key={w.id + w.name} selectable={false}>
+                    <TreeNode title={options(w.name, w.id)} key={w.id + w.name} selectable={false}>
                         {buildCircuitNode(w.circuits)}
                     </TreeNode>
                 )
@@ -77,26 +111,64 @@ const Data = ({dispatch, data}) => {
 
     const buildCircuitNode = (circuits) => {
         let circuitNodes = [];
+        const content =(id) => {
+            return (
+                <div>
+                    <Button onClick={() => showModal("data", id)}><Icon type="file-add" /></Button>
+                    <Button><Icon type="delete" /></Button>
+                </div>
+            )
+        }
+
+        const options = (name, id) => {
+            return (
+                <Popover content={content(id)} placement="right" trigger="hover">
+                    {name}
+                </Popover>
+            )
+        }
         if (circuits) {
             circuits.map(c => {
                 circuitNodes.push(
-                    <TreeNode title={c.name} key={c.id + '_' + c.name} selectable={true} dataRef={c}></TreeNode>
+                    <TreeNode title={options(c.name, c.id)} key={c.id + '_' + c.name} selectable={true} dataRef={c}></TreeNode>
                 )
             })
         }
         return circuitNodes;
     }
 
+    const closeModal = () => {
+        dispatch({
+            type : 'data/setModalInfo',
+            payload : {
+                modalVisible : false,
+                modalType : ""
+            }
+        })
+    }
+
+    const showModal = (type, id) => {
+        dispatch({
+            type : 'data/setModalInfo',
+            payload : {
+                modalVisible : true,
+                modalType : type,
+                modalInfo : id
+            }
+        })
+    }
+
     const tree = () => {
         return (
-        <div>
             <div>
-                <Button onClick={reload}><Icon type="reload" /></Button>
-            </div>
+                <div>
+                    <Button onClick={reload}><Icon type="reload" /></Button>
+                    <Button onClick={() => showModal("factory")}><Icon type="file-add" /></Button>
+                </div>
                 <Tree onSelect={loadElectricData}>
                     {buildFactoryNode()}
                 </Tree>
-        </div>
+            </div>
         )
     }
 
@@ -106,14 +178,15 @@ const Data = ({dispatch, data}) => {
                 <Row>
                     <Col span={4}>
                         {tree()}
+                        <DataForm visible={data.modalVisible} onCancel={closeModal} type={data.modalType} modalInfo={data.modalInfo} />
                     </Col>
                     <Col span={20}>
-                        <DataGraph electricData={data.dataA}/>
-                        <DataGraph electricData={data.dataB}/>
-                        <DataGraph electricData={data.dataC}/>
+                        <DataGraph electricData={data.dataA} />
+                        <DataGraph electricData={data.dataB} />
+                        <DataGraph electricData={data.dataC} />
                     </Col>
                 </Row>
-                
+
             </div>
         )
     }
@@ -124,5 +197,5 @@ const Data = ({dispatch, data}) => {
 }
 
 export default connect(
-    ({data}) => ({data})
+    ({ data }) => ({ data })
 )(Data);
