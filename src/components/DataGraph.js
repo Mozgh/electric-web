@@ -18,7 +18,7 @@ const DataGraph = ({electricData}) => {
     // 展开字段集
     key : "city",
     // key字段
-    value : "temperature" // value字段
+    value : "electricity" // value字段
   });
   const dv2 = ds.createView().source(electricData);
   dv2.transform({
@@ -27,7 +27,7 @@ const DataGraph = ({electricData}) => {
     // 展开字段集
     key : "city",
     // key字段
-    value : "temperature" // value字段
+    value : "voltage" // value字段
   });
   const cols = {
     month : {
@@ -47,7 +47,7 @@ const DataGraph = ({electricData}) => {
             }}
           />
           <Axis
-            name="temperature"
+            name="electricity"
             label={{
               formatter : val => `${val}A`
             }}
@@ -59,13 +59,13 @@ const DataGraph = ({electricData}) => {
           />
           <Geom
             type="line"
-            position="time*temperature"
+            position="time*electricity"
             size={2}
             color={"city"}
           />
           <Geom
             type="point"
-            position="time*temperature"
+            position="time*electricity"
             size={4}
             shape={"circle"}
             color={"city"}
@@ -86,7 +86,7 @@ const DataGraph = ({electricData}) => {
             }}
           />
           <Axis
-            name="temperature"
+            name="voltage"
             label={{
               formatter : val => `${val}V`
             }}
@@ -98,13 +98,13 @@ const DataGraph = ({electricData}) => {
           />
           <Geom
             type="line"
-            position="time*temperature"
+            position="time*voltage"
             size={2}
             color={"city"}
           />
           <Geom
             type="point"
-            position="time*temperature"
+            position="time*voltage"
             size={4}
             shape={"circle"}
             color={"city"}

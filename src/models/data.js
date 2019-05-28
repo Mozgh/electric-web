@@ -1,4 +1,5 @@
 import {listFactory, listWorkshop, listCircuit, listData, createFactory, createWorkshop, createCircuit, downloadTemplate} from '../services/example';
+import moment from "moment";
 
 export default {
 
@@ -17,7 +18,9 @@ export default {
     dataC : [],
     modalVisible : false,
     modalType : "",     //factory,workshop,circuit,data
-    modalInfo : {}
+    modalInfo : {},
+    startTime : moment().add(-1, 'days').format("YYYY-MM-DD HH-mm-ss"),
+    endTime : moment().format("YYYY-MM-DD HH-mm-ss"),
   },
 
   subscriptions : {
@@ -61,30 +64,52 @@ export default {
       const { data } = yield call(listData, payload);
       
       const {res} = data;
+      let dataAMap = new Map();
       let dataA = [];
+      let dataBMap = new Map();
       let dataB = [];
+      let dataCMap = new Map();
       let dataC = [];
       if (res) {
         res.map(record => {
           const {electricityA, voltageA, electricityB, voltageB, electricityC, voltageC, time} = record;
-          dataA.push({
+          dataAMap.set(time, {
             electricity : electricityA,
             voltage : voltageA,
             time
           });
-          dataB.push({
+          dataBMap.set(time, {
             electricity : electricityB,
             voltage : voltageB,
             time
           });
-          dataC.push({
+          dataCMap.set(time, {
             electricity : electricityC,
             voltage : voltageC,
             time
           });
       })
       }
-
+      dataAMap.forEach((value, key, map) => {
+        dataA.push(value);
+      });
+      dataBMap.forEach((value, key, map) => {
+        dataB.push(value);
+      });
+      dataCMap.forEach((value, key, map) => {
+        dataC.push(value);
+      });
+      yield put({
+        type : 'setCurrentCircuit',
+        payload : payload.cid
+      });
+      yield put({
+        type : 'setTime',
+        payload : {
+          startTime : payload.start,
+          endTime : payload.end
+        }
+      })
       yield put({
         type : 'setElectricData',
         payload : {
@@ -115,7 +140,7 @@ export default {
       return { ...state, circuit : payload.circuit};
     },
     setCurrentCircuit(state, payload) {
-      return { ...state, currentCircuit : payload.currentCircuit};
+      return { ...state, currentCircuit : payload.payload};
     },
     setElectricData(state, payload) {
       const {dataA, dataB, dataC} = payload.payload;
@@ -128,6 +153,14 @@ export default {
         modalVisible,
         modalType,
         modalInfo
+      }
+    },
+    setTime(state, payload) {
+      const {startTime, endTime} = payload.payload;
+      return {
+        ...state,
+        startTime,
+        endTime
       }
     }
   },

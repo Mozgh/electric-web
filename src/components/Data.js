@@ -1,18 +1,23 @@
 import Layout from "./Layout";
 import DataGraph from './DataGraph';
-import { Tree, Icon, Button, Row, Col, Popover } from "antd";
+import { Tree, Icon, Button, Row, Col, Popover, DatePicker } from "antd";
 import { connect } from 'dva';
 import DataForm from './DataForm';
+import moment from "moment";
 
 const { TreeNode } = Tree;
 
 const Data = ({ dispatch, data }) => {
+
+    const { RangePicker, MonthPicker } = DatePicker;
 
     const reload = () => {
         dispatch({
             type : 'data/listFactory'
         });
     }
+
+    console.log();
 
     const loadElectricData = (selectedKeys, { selectedNodes }) => {
         const node = selectedNodes[0];
@@ -35,8 +40,8 @@ const Data = ({ dispatch, data }) => {
             type : 'data/listData',
             payload : {
                 cid : id,
-                start : "2018-07-31 16:00:00",
-                end : "2018-07-31 20:00:00",
+                start : data.startTime,
+                end : data.endTime,
                 phase : "A"
             }
         });
@@ -46,7 +51,7 @@ const Data = ({ dispatch, data }) => {
         const { factory } = data;
         let treeNode = [];
 
-        const content =(id) => {
+        const content = (id) => {
             return (
                 <div>
                     <Button onClick={() => showModal("workshop", id)}><Icon type="file-add" /></Button>
@@ -79,7 +84,7 @@ const Data = ({ dispatch, data }) => {
 
     const buildWorkshopNode = (workshops) => {
         let workshopNodes = [];
-        const content =(id) => {
+        const content = (id) => {
             return (
                 <div>
                     <Button onClick={() => showModal("circuit", id)}><Icon type="file-add" /></Button>
@@ -111,7 +116,7 @@ const Data = ({ dispatch, data }) => {
 
     const buildCircuitNode = (circuits) => {
         let circuitNodes = [];
-        const content =(id) => {
+        const content = (id) => {
             return (
                 <div>
                     <Button onClick={() => showModal("data", id)}><Icon type="file-add" /></Button>
@@ -172,6 +177,21 @@ const Data = ({ dispatch, data }) => {
         )
     }
 
+    const setTime = (time) => {
+        const time1 = time[0];
+        const time2 = time[1];
+        const startTime = time1.format("YYYY-MM-DD HH-mm-ss");
+        const endTime = time2.format("YYYY-MM-DD HH-mm-ss");
+        dispatch({
+            type : 'data/listData',
+            payload : {
+                cid : data.currentCircuit,
+                start : startTime,
+                end : endTime
+            }
+        })
+    }
+
     const render = () => {
         return (
             <div>
@@ -181,6 +201,10 @@ const Data = ({ dispatch, data }) => {
                         <DataForm visible={data.modalVisible} onCancel={closeModal} type={data.modalType} modalInfo={data.modalInfo} />
                     </Col>
                     <Col span={20}>
+                        <div>
+                            选择时间<RangePicker renderExtraFooter={() => 'extra footer'} showTime defaultValue={[moment().add(-1, 'days'), moment()]} onOk={setTime}/>
+                        </div>
+                        <b/>
                         <DataGraph electricData={data.dataA} />
                         <DataGraph electricData={data.dataB} />
                         <DataGraph electricData={data.dataC} />
