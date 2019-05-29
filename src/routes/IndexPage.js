@@ -17,8 +17,8 @@ const IndexPage = () => {
         defaultSelectedKeys={['2']}
         style={{ lineHeight : '64px' }}
       >
+      <Menu.Item key="data"><Link to="/data">数据</Link></Menu.Item>    
         <Menu.Item key="user"><Link to="/user">用户管理</Link></Menu.Item>
-        <Menu.Item key="factory">工厂</Menu.Item>
       </Menu>
     </Header>
     <Content style={{ padding : '0 50px' }}>

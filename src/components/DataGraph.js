@@ -34,6 +34,15 @@ const DataGraph = ({electricData}) => {
       range : [0, 1]
     }
   };
+  const dv3 = ds.createView().source(electricData);
+  dv3.transform({
+    type : "fold",
+    fields : ["activePower", "reactivePower", "apparentPower"],
+    // 展开字段集
+    key : "city",
+    // key字段
+    value : "power" // value字段
+  });
   return (
     <div>
       <Row>
@@ -105,6 +114,48 @@ const DataGraph = ({electricData}) => {
           <Geom
             type="point"
             position="time*voltage"
+            size={4}
+            shape={"circle"}
+            color={"city"}
+            style={{
+              stroke : "#fff",
+              lineWidth : 1
+            }}
+          />
+          </Chart>
+        </Col>
+        
+      </Row>
+      <Row>
+      <Col  span={12}>
+          <Chart height={300} data={dv3} scale={cols} forceFit>
+          <Legend />
+          <Axis 
+            name="time"
+            label={{
+              formatter : time => moment(time).format("HH:mm:ss")
+            }}
+          />
+          <Axis
+            name="power"
+            label={{
+              formatter : val => `${val}kW`
+            }}
+          />
+          <Tooltip
+            crosshairs={{
+              type : "y"
+            }}
+          />
+          <Geom
+            type="line"
+            position="time*power"
+            size={2}
+            color={"city"}
+          />
+          <Geom
+            type="point"
+            position="time*power"
             size={4}
             shape={"circle"}
             color={"city"}

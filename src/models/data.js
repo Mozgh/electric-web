@@ -72,20 +72,34 @@ export default {
       let dataC = [];
       if (res) {
         res.map(record => {
-          const {electricityA, voltageA, electricityB, voltageB, electricityC, voltageC, time} = record;
+          const {
+            electricityA, voltageA, activePowerA, reactivePowerA, apparentPowerA,
+            electricityB, voltageB, activePowerB, reactivePowerB, apparentPowerB,
+            electricityC, voltageC, activePowerC, reactivePowerC, apparentPowerC,
+            time
+          } = record;
           dataAMap.set(time, {
             electricity : electricityA,
             voltage : voltageA,
+            activePower : activePowerA,
+            reactivePower : reactivePowerA,
+            apparentPower : apparentPowerA,
             time
           });
           dataBMap.set(time, {
             electricity : electricityB,
             voltage : voltageB,
+            activePower : activePowerB,
+            reactivePower : reactivePowerB,
+            apparentPower : apparentPowerB,
             time
           });
           dataCMap.set(time, {
             electricity : electricityC,
             voltage : voltageC,
+            activePower : activePowerC,
+            reactivePower : reactivePowerC,
+            apparentPower : apparentPowerC,
             time
           });
       })
